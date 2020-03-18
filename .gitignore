@@ -1,0 +1,17 @@
+.DS_Store
+.ipynb_checkpoints/
+.idea/
+__pycache__/
+**.pyc
+**.gz
+data/
+download/
+results/
+# *.zip
+# *.tgz
+.kaggle-cli
+.vscode
+
+fairseq_vmt/dataset
+fairseq_vmt/data-bin
+fairseq_vmt/checkpoints
