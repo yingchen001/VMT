@@ -150,19 +150,18 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
 
 
 # 7:54
-with open(decode_output, 'w') as output:
+with torch.no_grad():
     pred_lines = []
     for i, batch in enumerate(test_iter):
         src = batch.src[0]
         src_mask = (src != src_idx2word.index('<pad>')).unsqueeze(-2)
-        model.eval()
         out = greedy_decode(model, src, src_mask, max_len=50, start_symbol=tgt_idx2word.index('<bos>'))
 
         idx_seqs = []
         for j in range(1, out.size(1)):
             sym = out[0, j].data.item()
             idx_seqs.append(sym)
-            if sym == 3: break
+            if sym == tgt_idx2word.index('<eos>'): break
         pred_line = convert_idx2text(idx_seqs, tgt_idx2word)
         pred_lines.append(pred_line)
 
@@ -176,8 +175,11 @@ with open(decode_output, 'w') as output:
             print(ans[i])
             print("Translation:", end="\t")
             print(pred_line)
+        # if i == 50:
+        #     break
 
-        output.write(pred_line + '\n')
-
-
+# 10:09
+with open(decode_output, 'w') as output:
+    for l in pred_lines:
+        output.write(l + '\n')
 
