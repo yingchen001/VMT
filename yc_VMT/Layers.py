@@ -393,7 +393,6 @@ class AttnDecoderRNN_V(nn.Module):
         enc_out_v = enc_out_v.permute(1, 0, 2)
         attn_t_applied = torch.bmm(attn_t.unsqueeze(1), enc_out_t).permute(1, 0, 2) #[1, batch size, enc hid dim]
         attn_v_applied = torch.bmm(attn_v.unsqueeze(1), enc_out_v).permute(1, 0, 2) #[1, batch size, enc hid dim]
-
         rnn_input  = torch.cat((embedded, attn_t_applied, attn_v_applied), 2)
         output, hidden = self.lstm(rnn_input, hidden)
 

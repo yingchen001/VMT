@@ -53,12 +53,10 @@ def trainEpoch(epoch, model, criterion, dataloader, optim, print_batch=100):
             epoch_corrects += batch_corrects
             batch_loss, batch_words, batch_corrects = 0, 0, 0
             start = time.time()
-            
-    
-    # epoch_accuracy = epoch_corrects/epoch_words
-    # epoch_perplexity = math.exp(epoch_loss*batch_size/epoch_words)
-    # return epoch_accuracy, epoch_perplexity
-    return 0, 0
+        
+    epoch_accuracy = epoch_corrects/epoch_words
+    epoch_perplexity = math.exp(epoch_loss*batch_size/epoch_words)
+    return epoch_accuracy, epoch_perplexity
 
 def evaluate(epoch, model, criterion, dataloader):
     model.eval()
@@ -203,7 +201,7 @@ if __name__ == "__main__":
             best_eval_acc = eval_acc
             torch.save(checkpoint, checkpoint_path)
         # testing every 10 epochs
-        if (epoch % 10 == 0) or epoch == num_epochs - 1:
+        if (epoch % 10 == 9) or epoch == num_epochs - 1:
             print('running testing...')
             try:
                 bleu = test(model, testdataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=None, verbose=False)

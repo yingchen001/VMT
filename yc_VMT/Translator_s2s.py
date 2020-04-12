@@ -121,8 +121,8 @@ class Translator(object):
             enc_out_v, hidden_v = self.model.encoder_v(src_vfeat)
 
             # predict the first word
-            decoder_input = Variable(torch.LongTensor([BOS_id]).cuda())
-            out, hidden = self.model.decode(decoder_input, hidden, enc_out_t, enc_out_v)
+            decoder_input = Variable(torch.LongTensor([BOS_id]).unsqueeze(0).cuda())
+            out, hidden = self.model.decoder(decoder_input, hidden, enc_out_t, enc_out_v)
             scores, scores_id = out.view(-1).topk(beam_size)
             node = Node(hidden, None, decoder_input, 0, 1)
             q = Queue()

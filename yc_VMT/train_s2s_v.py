@@ -54,11 +54,9 @@ def trainEpoch(epoch, model, criterion, dataloader, optim, print_batch=100):
             batch_loss, batch_words, batch_corrects = 0, 0, 0
             start = time.time()
             
-    
-    # epoch_accuracy = epoch_corrects/epoch_words
-    # epoch_perplexity = math.exp(epoch_loss*batch_size/epoch_words)
-    # return epoch_accuracy, epoch_perplexity
-    return 0, 0
+    epoch_accuracy = epoch_corrects/epoch_words
+    epoch_perplexity = math.exp(epoch_loss*batch_size/epoch_words)
+    return epoch_accuracy, epoch_perplexity
 
 def evaluate(epoch, model, criterion, dataloader):
     model.eval()
@@ -111,7 +109,7 @@ def test(model, dataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=No
             pred_sentence = index2sentence(pred, tgt_dict)
             preds.append(pred_sentence)
             refs.append(tgt_sentence)
-            if verbose:
+            if verbose and i//100==0:
                 print()
                 print('src', src_sentence)
                 print('tgt', tgt_sentence)
@@ -204,10 +202,8 @@ if __name__ == "__main__":
             print('save checkpoint to {}'.format(checkpoint_path))
             best_eval_acc = eval_acc
             torch.save(checkpoint, checkpoint_path)
-        bleu = test(model, testdataloader, src_lang, tgt_lang, src_dict, tgt_dict)
-        print('BLEU score at epoch {} : {}'.format(epoch, bleu))
         # testing every 10 epochs
-        if (epoch % 10 == 0) or epoch == num_epochs - 1:
+        if (epoch % 10 == 9) or epoch == num_epochs - 1:
             print('running testing...')
             try:
                 bleu = test(model, testdataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=None, verbose=False)
