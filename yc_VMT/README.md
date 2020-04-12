@@ -1,9 +1,14 @@
-## data
-data files are txt files with index of words inside.
+## Data
+Data files are csv files contains 
+- unique id
+- src & tgt ids
+- path of i3d feature
+- path of raw video 
+Two pickle file are Lang object of word dictionary. (need to define class Lang before load it)
 
-* data_new: jieba tokenization vatex data
-* data_singleword: single word tokenization vatex data
-* data_single_plus: single word with some addtional training data
+## Raw data
+Raw video data and features should be downloaded, change the raw data path in `data_prepare.py`
+
 
 
 
