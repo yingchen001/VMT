@@ -96,9 +96,11 @@ def test(model, dataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=No
     preds, refs = [], []
     with open('./data/test.{}'.format(tgt_lang), 'r') as f:
         refs = f.readlines()
-    for i, (src, tgt) in tqdm(enumerate(dataloader)):
+    for i in tqdm(range(len(dataloader))):
         if max_steps and i >= max_steps:
+            refs = refs[:max_steps]
             break
+        src, tgt = dataloader[i]
         x_t, x_v = src[0], src[1]
         x_t = x_t.tolist()[0]
         y = tgt.tolist()[0]
@@ -108,7 +110,7 @@ def test(model, dataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=No
             tgt_sentence = refs[i]
             pred_sentence = index2sentence(pred, tgt_dict)
             preds.append(pred_sentence)
-            refs.append(tgt_sentence)
+            # refs.append(tgt_sentence)
             if verbose and i//100==0:
                 print()
                 print('src', src_sentence)
@@ -117,6 +119,7 @@ def test(model, dataloader, src_lang, tgt_lang, src_dict, tgt_dict, max_steps=No
         except Exception as e:
             print('failed to predict due to error:',e)
             break
+    print('preds len = {}, refs len = {}'.format(len(preds),len(refs)))
     if tgt_lang == 'zh':
         preds = [sent.replace(' ','') for sent in preds]
         refs = [sent.replace(' ','') for sent in refs]
@@ -174,7 +177,7 @@ if __name__ == "__main__":
     # criterion = nn.CrossEntropyLoss(ignore_index = 0)
     criterion = nn.NLLLoss(size_average=False, ignore_index=0).cuda()
     base_optim = torch.optim.Adam(model.parameters(), betas=(0.9, 0.98), eps=1e-09)
-    optim = TransformerOptimizer(base_optim, warmup_steps=32000, d_model=512)
+    optim = TransformerOptimizer(base_optim, warmup_steps=1000)
 
     print("Start Training ...")
     best_eval_acc = 0

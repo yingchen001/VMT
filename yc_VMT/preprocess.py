@@ -45,7 +45,7 @@ class Lang:
 def raw2id(df, en_dict, zh_dict, use_jieba=True):
     df_id = df.copy()
     for index, row in df.iterrows():
-        zh_line, en_line = row['zh'], row['en']
+        zh_line, en_line = ' '.join(row['zh'].split()), ' '.join(row['en'].split())
         if use_jieba:
             zh_id = [zh_dict.word2index[tok] if tok in zh_dict.word2index else UNK_id for tok in jieba.lcut(zh_line)]
         else:

@@ -10,7 +10,7 @@ class TransformerOptimizer(object):
         self.base_optim = optimizer
         self.warmup_steps = warmup_steps
         # self.init_lr = d_model**(-0.5) 
-        self.init_lr = 0.1
+        self.init_lr = 0.001
         self.lr = 0
         self._step = 0
         
