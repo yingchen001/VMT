@@ -9,7 +9,7 @@ from model_transformer import Transformer, TransformerNew, TransformerVideo
 from Optimizer import TransformerOptimizer
 from tqdm import tqdm
 import pickle
-from Translator import Translator
+from Translator import VTranslator
 import sacrebleu
 import json
 import numpy as np
@@ -63,7 +63,8 @@ def trainEpoch(epoch, model, criterion, dataloader, optim, print_batch=100):
         # print('input', src_batch.shape, tgt_batch.shape, video.shape)
         model.zero_grad()
         # leave out the last <EOS> in target
-        out, _ = model(src_batch, tgt_batch[:,:-1], video)  
+        # out, _ = model(src_batch, tgt_batch[:,:], video)  
+        out, _ = model(src_batch, tgt_batch[:,:-1], video)
         # label smoothing 
         # randomly set 10% target labels to 0, which doesn't contribute to loss
         labelsmoothing_mask = torch.le(torch.zeros(tgt_batch[:,1:].size()).uniform_(), 0.1).cuda()
@@ -101,7 +102,7 @@ def evaluate(epoch, model, criterion, dataloader):
             tgt_batch = tgtcap.cuda()
             video = video.cuda()
             
-            out, _ = model(src_batch, tgt_batch[:, :-1], video)
+            out, _ = model(src_batch, tgt_batch[:,:-1], video)
             tgt_words = tgt_batch[:,1:].contiguous().view(-1)      
             loss = criterion(out, tgt_words)    
             preds = torch.max(out,1)[1]        
@@ -150,7 +151,7 @@ def test_nltk(model, dataloader, src_tokenizor, tgt_tokenizor, max_steps=None, p
         max_steps: run how many steps for each test
     '''
     # load translator
-    translator = Translator(model, 'no-bpe')
+    translator = VTranslator(model, 'no-bpe')
 
     hypotheses, refs = [], []
     for i, (srccap, tgtcap, video, caplen_src, caplen_tgt, srcrefs, tgtrefs) in enumerate(tqdm(dataloader)):
@@ -158,10 +159,11 @@ def test_nltk(model, dataloader, src_tokenizor, tgt_tokenizor, max_steps=None, p
             break
         x = srccap.tolist()[0]
         y = tgtcap.tolist()[0]
+        video = video.cuda()
         ref = tgtrefs[0]
         ref = [list(map(int, ref.split()))]
         try:
-            pred = translator.translate(x) # pred is a str by joining indexes
+            pred = translator.translate(x, video) # pred is a str by joining indexes
             pred_list = list(map(int, pred.split(' ')))
             hypo = pred_list[1:-1]
             hypotheses.append(hypo)
@@ -243,7 +245,7 @@ if __name__ == "__main__":
     train_loader, val_loader, test_loader, tok_src, tok_tgt, src_vocab_size, tgt_vocab_size = get_dataloaders(args)
     print('data loaders loaded!')
 
-    run_type = 'transformer_new_3layer' # for checkpoint saving
+    run_type = 'transformer_video' # for checkpoint saving
     num_epochs = 100
     num_layer = 3
     test_every = 5 # test every x epochs
