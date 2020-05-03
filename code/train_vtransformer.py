@@ -1,27 +1,28 @@
 import os
+import sys
 import math
 import time
-import torch
-import torch.nn as nn
-from torch.autograd import Variable
-from model_transformer import Transformer, TransformerNew, TransformerVideo
-# from Dataloader import Dataloader
-from Optimizer import TransformerOptimizer
-from tqdm import tqdm
-import pickle
-from Translator import VTranslator
-import sacrebleu
 import json
-import numpy as np
+import pickle
 import logging
 import datetime
 import argparse
-import sys
 
+import torch
+import sacrebleu
+import torch.nn as nn
+import numpy as np
+
+from tqdm import tqdm
+from torch.autograd import Variable
+from models.model_transformer import Transformer, TransformerNew, TransformerVideo
+from models.Optimizer import TransformerOptimizer
+from models.Translator import VTranslator
 from dataloader import create_split_loaders
+from utils import set_logger,read_vocab,write_vocab,build_vocab,Tokenizer
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu, SmoothingFunction
-from utils import set_logger,read_vocab,write_vocab,build_vocab,Tokenizer,padding_idx,clip_gradient,adjust_learning_rate
 cc = SmoothingFunction()
+
 
 class Arguments():
     def __init__(self, config):
@@ -118,7 +119,7 @@ def test_nltk(model, dataloader, src_tokenizor, tgt_tokenizor, max_steps=None, p
         max_steps: run how many steps for each test
     '''
     # load translator
-    beam_size = 1
+    beam_size = 5
     alpha = 0.05
     beta = 0.3
     print('beam alpha beta:', beam_size, alpha, beta)
@@ -210,7 +211,7 @@ def get_dataloaders(args):
 if __name__ == "__main__":
     # arguments from configs.yaml
     parser = argparse.ArgumentParser(description='VMT')
-    parser.add_argument('--config', type=str, default='./configs.yaml')
+    parser.add_argument('--config', type=str, default='./configs/configs_transformer.yaml')
     args = parser.parse_args()
     with open(args.config, 'r') as fin:
         import yaml
@@ -223,15 +224,14 @@ if __name__ == "__main__":
     num_epochs = 100
     num_layer = 4
     test_every = 3 # test every x epochs
-    # run_testing_during_training = False
     checkpoint_file = None
-    # checkpoint_file = './checkpoints/transformer_novideo/epoch4_acc_48.13_ppl_17.20.pt'
 
     print('vocab sizes', src_vocab_size, tgt_vocab_size)
     # tgt_vocab_size += 100
     print("Building Model ...")
     # model = Transformer(bpe_size=vocab_size, h=8, d_model=512, p=0.1, d_ff=1024).cuda()
     model = TransformerVideo(src_vocab_size, tgt_vocab_size, h=8, d_model=512, p=0.1, d_ff=1024, num_layer=num_layer).cuda()
+    print('#paras of my model: total {}M'.format(sum(p.numel() for p in model.parameters())/1e6))
     if checkpoint_file:
         ckpt = torch.load(checkpoint_file)
         model.load_state_dict(ckpt['model'])
@@ -250,9 +250,6 @@ if __name__ == "__main__":
     best_eval_acc = 0
     best_bleu = 0
     for epoch in range(start_epoch, num_epochs):
-        if epoch > 0:
-            # traindataloader.shuffle(1024)
-            pass
         if epoch == 20:
             optim.init_lr = 0.5 * optim.init_lr 
         if epoch == 40:
