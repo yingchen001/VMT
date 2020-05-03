@@ -1,7 +1,0 @@
-2020-05-03 19:28:43,579:INFO: Training model: transformer_en2zh
-2020-05-03 19:28:51,467:DEBUG: Building prefix dict from the default dictionary ...
-2020-05-03 19:28:51,468:DEBUG: Loading model from cache /tmp/jieba.cache
-2020-05-03 19:28:52,108:DEBUG: Loading model cost 0.641 seconds.
-2020-05-03 19:28:52,108:DEBUG: Prefix dict has been built successfully.
-2020-05-03 19:29:19,326:INFO: Vocab size src/tgt:10523/13364
-2020-05-03 19:29:20,684:INFO: train/val/test size: 508/59/15000
