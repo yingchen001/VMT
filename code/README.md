@@ -16,8 +16,20 @@ This code is built on [Video-guided-Machine-Translation](https://github.com/eric
 
 ### 1. Download VATEX dataset, including corpus files, videos, and extracted i3D features
 Details can be found at https://vatex.org/main/download.html, please change corresponding paths for above data after downloading.
+An example folder structure is:
+```
+    ./data
+    ├── audio_features                     # Extracted audio features
+    ├── resnet_features                    # Extracted appearance features
+    ├── vatex_features                     # Extracted motion (i3D) features
+    ├── train_vocab_en.txt                 # English Vocubulary
+    ├── train_vocab_zh.txt                 # Chinese Vocubulary
+    ├── vatex_training_v1.0.json           # Training Corpus, use last 5 pairs
+    ├── vatex_validation_v1.0.json         # Validation Corpus, use last 5 pairs
+    └── videos                             # Raw videos
+```
 ### 2. Feature Extraction
-Run ```./feature_extraction/extract_resnet_feat.py``` and ```./feature_extraction/extract_audio_feat.py``` to extract the apperance and audio features from raw videos respectively.
+Run ```./feature_extraction/extract_resnet_feat.py``` and ```./feature_extraction/extract_audio_feat.py``` to extract the appearance and audio features from raw videos respectively.
 ### 3. Training & Validation
 #### Baseline (https://arxiv.org/abs/1904.03493)
 To train and evaluate the baseline NMT model (w/o i3D features):
